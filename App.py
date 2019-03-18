@@ -8,7 +8,6 @@ class App:
         self.HEIGHT = 640
         self.WIDTH = 640
         self.application_window = tk.Tk()
-        self.entry = tk.Entry()
 
     def render(self):
         canvas = tk.Canvas(self.application_window, height=self.HEIGHT, width=self.WIDTH)
@@ -28,7 +27,18 @@ class App:
         chat_frame.place(relx=0.33, rely=0.28, relwidth=0.63, relheight=0.45)
 
         type_frame = tk.Frame(self.application_window, bg="gray")
-        type_frame.place(relx=0.33, rely=0.735, relwidth=0.63, relheight=0.15)
+        type_frame.place(relx=0.33, rely=0.735, relwidth=0.53, relheight=0.15)
+
+        type_text = tk.Text(type_frame)
+        type_text.pack(fill="both")
+
+        send_button = tk.Button(self.application_window, text="Send")
+        send_button.place(relx=0.87, rely=0.755, relwidth=0.1, relheight=0.1)
+
+        chat_text = tk.Text(chat_frame)
+        chat_text.insert(tk.INSERT, "Hey what's up?")
+        chat_text.config(state="disabled")
+        chat_text.pack(fill='both')
 
         lb1 = tk.Listbox(contacts_frame)
         contacts1 = Contacts.Contacts()
@@ -38,3 +48,6 @@ class App:
             i += 1
         lb1.place(relwidth=0.9, relheight=0.95, relx=0.05, rely=0.03)
         self.application_window.mainloop()
+
+    def send_message(self):
+        print("omegalul")

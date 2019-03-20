@@ -1,0 +1,18 @@
+from socket import *
+
+
+class Network:
+    def __init__(self):
+        # self.host = "134.209.232.252"
+        self.host = "192.168.0.102"
+        self.port = 9999
+        self.s = socket()
+        print("Network has been setup")
+
+    def check_connection(self):
+        print("Connecting")
+        self.s.connect((self.host, self.port))
+
+    def close_connection(self):
+        print("Closing connection")
+        self.s.close()

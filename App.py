@@ -1,9 +1,13 @@
 import tkinter as tk
 import Contacts
+from socket import *
+import threading
+from tkinter import messagebox
 
 
 class App:
-    def __init__(self):
+    def __init__(self, s):
+        self.s = s
         self.HEIGHT = 640
         self.WIDTH = 640
         self.application_window = tk.Tk()
@@ -12,11 +16,28 @@ class App:
         self.chat_text = tk.Text(self.chat_frame, state="disabled")
         self.type_frame = tk.Frame(self.application_window, bg="gray")
         self.type_text = tk.Text(self.type_frame)
+        self.info_frame = tk.Frame(self.application_window, bg="gray")
+        self.nickname = "anonymous"
+        self.nickname_entry = tk.Entry(self.info_frame)
         self.type_message = ""
-        print("success")
+        # self.host = "134.209.232.252"
+        # self.host = "192.168.0.102"
+        # self.port = 9999
+        # self.s = socket()
+        print("Application initialized")
+
+    def receive(self):
+            while True:
+                data = self.s.recv(1024)
+                self.chat_text.config(state="normal")
+                self.chat_text.insert(tk.INSERT, data)
+                self.chat_text.config(state="disabled")
+
+    def setnickname(self):
+        self.nickname = self.nickname_entry.get()
+        print(self.nickname)
 
     def render(self):
-
         self.canvas.pack()
         self.application_window.title("Dzoiver")
 
@@ -26,8 +47,15 @@ class App:
         avatar_frame = tk.Frame(self.application_window, bg="gray")
         avatar_frame.place(relx=0.33, rely=0.025, relwidth=0.25, relheight=0.25)
 
-        info_frame = tk.Frame(self.application_window, bg="gray")
-        info_frame.place(relx=0.6, rely=0.1, relwidth=0.36, relheight=0.175)
+        self.info_frame.place(relx=0.6, rely=0.1, relwidth=0.36, relheight=0.175)
+
+        self.nickname_entry.place(relx=0, rely=0.5)
+
+        nickname_label = tk.Label(self.info_frame, text="Enter your nickname", bg="gray")
+        nickname_label.place(relx=0, rely=0.3)
+
+        nickname_button = tk.Button(self.info_frame, text="Set", command=lambda: self.setnickname())
+        nickname_button.place(relx=0.6, rely=0.5)
 
         self.chat_frame.place(relx=0.33, rely=0.28, relwidth=0.63, relheight=0.45)
 
@@ -51,7 +79,14 @@ class App:
 
     def send_message(self):
         self.type_message = self.type_text.get(1.0, tk.END)
+        self.s.send(self.nickname.encode() + ": ".encode() + self.type_message.encode())
+        self.type_message = ""
         self.chat_text.config(state="normal")
         self.chat_text.insert(tk.INSERT, self.type_message)
         self.chat_text.config(state="disabled")
         self.type_text.delete(1.0, tk.END)
+
+    def run_thread(self):
+        receive_thread = threading.Thread(target=self.receive())
+        receive_thread.daemon = True
+        receive_thread.start()

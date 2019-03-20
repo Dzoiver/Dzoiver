@@ -13,11 +13,10 @@ def handler(c, a):
     while True:
         global connections
         data = c.recv(1024)
-        msg = data.decode()
         for connection in connections:
             # connection.send(str(a).encode() + " has connected!\n".encode())
             connection.send(bytes(data))
-            print(msg)
+            print(data.decode('utf-8'))
         if not data:
             connections.remove(c)
             c.close()

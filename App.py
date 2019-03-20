@@ -79,7 +79,7 @@ class App:
 
     def send_message(self):
         self.type_message = self.type_text.get(1.0, tk.END)
-        self.s.send(self.nickname.encode() + ": ".encode() + self.type_message.encode())
+        self.s.send(self.nickname.encode('utf-8') + ": ".encode('utf-8') + self.type_message.encode('utf-8'))
         self.type_message = ""
         self.chat_text.config(state="normal")
         self.chat_text.insert(tk.INSERT, self.type_message)

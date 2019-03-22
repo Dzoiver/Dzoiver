@@ -1,5 +1,6 @@
 import socket
 import threading
+import time
 
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -12,6 +13,7 @@ connections = []
 def handler(c, a):
     while True:
         global connections
+        time.sleep(3)
         data = c.recv(1024)
         for connection in connections:
             # connection.send(str(a).encode() + " has connected!\n".encode())

@@ -1,8 +1,6 @@
 import tkinter as tk
 import Contacts
-from socket import *
 import threading
-from tkinter import messagebox
 
 
 class App:

@@ -31,7 +31,7 @@ def handler2():
 def receive():
         while True:
             time.sleep(1)
-            data = network1.s.recv(1024)
+            data = network1.s.recv(2048)
             app1.chat_text.config(state="normal")
             app1.chat_text.insert(tk.INSERT, data)
             app1.chat_text.config(state="disabled")

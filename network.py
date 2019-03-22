@@ -3,7 +3,7 @@ from socket import *
 
 class Network:
     def __init__(self):
-        self.host = "134.209.232.252"
+        self.host = "46.101.230.74"
         # self.host = "192.168.0.102"
         self.port = 9999
         self.s = socket()

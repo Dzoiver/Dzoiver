@@ -25,13 +25,25 @@ def handler():
 def handler2():
     while True:
         time.sleep(3)
-        network1.s.send(app1.type_message.encode())
+        try:
+            network1.s.send(app1.type_message.encode())
+        except WindowsError:
+            print("Connection dropped. Closing it")
+            network1.close_connection()
+            print("Connecting again")
+            network1.check_connection()
 
 
 def receive():
         while True:
             time.sleep(1)
-            data = network1.s.recv(2048)
+            try:
+                data = network1.s.recv(2048)
+            except WindowsError:
+                print("Connection dropped. Closing it")
+                network1.close_connection()
+                print("Connecting again")
+                network1.check_connection()
             app1.chat_text.config(state="normal")
             app1.chat_text.insert(tk.INSERT, data)
             app1.chat_text.config(state="disabled")

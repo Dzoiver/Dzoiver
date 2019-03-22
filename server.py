@@ -17,7 +17,11 @@ def handler(c, a):
         data = c.recv(1024)
         for connection in connections:
             # connection.send(str(a).encode() + " has connected!\n".encode())
-            connection.send(bytes(data))
+            try:
+                connection.send(bytes(data))
+            except WindowsError:
+                print("Connection reseted")
+                c.close()
             print(data.decode('utf-8'))
         if not data:
             connections.remove(c)

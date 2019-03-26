@@ -7,8 +7,8 @@ import time
 import tkinter as tk
 
 
-def handler():
-    global connection
+def thread1():
+    global connection, connected
     try:
         network1.check_connection()
     except:
@@ -19,31 +19,51 @@ def handler():
         netcheck1.label1.config(text="Connected!")
         print("Network established")
         connection = True
+        connected = True
         netcheck1.destroy()
 
 
-def handler2():
+def thread2():
+    global connected
     while True:
-        time.sleep(3)
+        time.sleep(2)
         try:
             network1.s.send(app1.type_message.encode())
-        except WindowsError:
-            print("Connection dropped. Closing it")
-            network1.close_connection()
-            print("Connecting again")
-            network1.check_connection()
+        except error:
+            connected = False
+            network1.s = socket()
+            print("connection in send lost... reconnecting")
+            while not connected:
+                try:
+                    network1.check_connection()
+                    connected = True
+                    print("re-connection in send successful")
+                    app1.newsocket(network1.s)
+                except error:
+                    print("snn hotel")
+                    time.sleep(2)
 
 
-def receive():
-        while True:
-            time.sleep(1)
-            try:
-                data = network1.s.recv(2048)
-            except WindowsError:
-                print("Connection dropped. Closing it")
-                network1.close_connection()
-                print("Connecting again")
-                network1.check_connection()
+def thread3():
+    global connected
+    while True:
+        time.sleep(1)
+        try:
+            data = network1.s.recv(1024)
+        except error:
+            connected = False
+            network1.s = socket()
+            print("connection in recv lost... reconnecting")
+            while not connected:
+                try:
+                    if not connected:
+                        network1.check_connection()
+                        connected = True
+                        print("re-connection in recv successful")
+                        app1.newsocket(network1.s)
+                except error:
+                    time.sleep(2)
+        else:
             app1.chat_text.config(state="normal")
             app1.chat_text.insert(tk.INSERT, data)
             app1.chat_text.config(state="disabled")
@@ -51,17 +71,17 @@ def receive():
 
 network1 = network.Network()
 netcheck1 = netcheck_app.Netcheck()
-cThread = threading.Thread(target=handler)
+cThread = threading.Thread(target=thread1)
 cThread.daemon = True
 cThread.start()
 
 netcheck1.render()
 
 if connection:
-    send_thread = threading.Thread(target=handler2)
+    send_thread = threading.Thread(target=thread2)
     send_thread.daemon = True
     send_thread.start()
-    receive_thread = threading.Thread(target=receive)
+    receive_thread = threading.Thread(target=thread3)
     receive_thread.daemon = True
     receive_thread.start()
     app1 = App.App(network1.s)

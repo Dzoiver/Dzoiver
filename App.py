@@ -1,6 +1,8 @@
 import tkinter as tk
 import Contacts
 import threading
+import socket
+from tkinter import messagebox
 
 
 class App:
@@ -23,6 +25,9 @@ class App:
         # self.port = 9999
         # self.s = socket()
         print("Application initialized")
+
+    def newsocket(self, s):
+        self.s = s
 
     def receive(self):
             while True:
@@ -77,12 +82,19 @@ class App:
 
     def send_message(self):
         self.type_message = self.type_text.get(1.0, tk.END)
-        self.s.send(self.nickname.encode('utf-8') + ": ".encode('utf-8') + self.type_message.encode('utf-8'))
-        self.type_message = ""
-        self.chat_text.config(state="normal")
-        self.chat_text.insert(tk.INSERT, self.type_message)
-        self.chat_text.config(state="disabled")
-        self.type_text.delete(1.0, tk.END)
+        try:
+            self.s.send(self.nickname.encode('utf-8') + ": ".encode('utf-8') + self.type_message.encode('utf-8'))
+        except socket.error:
+            print("Can't send because no connection")
+            self.type_text.delete(1.0, tk.END)
+            self.type_message = ""
+            messagebox.showerror("Send error", "Can't send because no connection")
+        else:
+            self.type_message = ""
+            self.chat_text.config(state="normal")
+            self.chat_text.insert(tk.INSERT, self.type_message)
+            self.chat_text.config(state="disabled")
+            self.type_text.delete(1.0, tk.END)
 
     def run_thread(self):
         receive_thread = threading.Thread(target=self.receive())

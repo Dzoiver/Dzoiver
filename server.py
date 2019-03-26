@@ -13,20 +13,24 @@ connections = []
 def handler(c, a):
     while True:
         global connections
-        time.sleep(3)
-        data = c.recv(1024)
+        try:
+            data = c.recv(1024)
+        except socket.error:
+            print("Connection error... closing connection")
+            c.close()
         for connection in connections:
             # connection.send(str(a).encode() + " has connected!\n".encode())
             try:
                 connection.send(bytes(data))
-            except WindowsError:
-                print("Connection reseted")
+            except socket.error:
+                print("Connection error... closing connection")
                 c.close()
             print(data.decode('utf-8'))
         if not data:
             connections.remove(c)
             c.close()
             break
+    time.sleep(1)
 
 
 while True:

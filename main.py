@@ -5,6 +5,9 @@ from socket import *
 import network
 import time
 import tkinter as tk
+import Contacts
+import account
+import userInfo
 
 
 def thread1():
@@ -26,9 +29,11 @@ def thread1():
 def thread2():
     global connected
     while True:
-        time.sleep(2)
         try:
+            time.sleep(1)
+            print("Sending data to the server")
             network1.s.send(app1.type_message.encode())
+            print("Data is sent")
         except error:
             connected = False
             network1.s = socket()
@@ -40,16 +45,18 @@ def thread2():
                     print("re-connection in send successful")
                     app1.newsocket(network1.s)
                 except error:
-                    print("snn hotel")
                     time.sleep(2)
 
 
 def thread3():
     global connected
+    time.sleep(1)
     while True:
-        time.sleep(1)
         try:
+            time.sleep(0.5)
+            print("Receiving data")
             data = network1.s.recv(1024)
+            print("Data is received")
         except error:
             connected = False
             network1.s = socket()
@@ -64,9 +71,13 @@ def thread3():
                 except error:
                     time.sleep(2)
         else:
-            app1.chat_text.config(state="normal")
-            app1.chat_text.insert(tk.INSERT, data)
-            app1.chat_text.config(state="disabled")
+            print(data[0:3].decode())
+            if data[0:3].decode() == "msg":
+                app1.chat_text.config(state="normal")
+                app1.chat_text.insert(tk.INSERT, data[3:].decode("utf-8"))
+                app1.chat_text.config(state="disabled")
+            # if data[0:3].decode() == "nck":
+            #     app1.nickname = acc1.name()
 
 
 network1 = network.Network()
@@ -76,38 +87,21 @@ cThread.daemon = True
 cThread.start()
 
 netcheck1.render()
+user1 = userInfo.Userinfo()
 
 if connection:
-    send_thread = threading.Thread(target=thread2)
-    send_thread.daemon = True
-    send_thread.start()
-    receive_thread = threading.Thread(target=thread3)
-    receive_thread.daemon = True
-    receive_thread.start()
-    app1 = App.App(network1.s)
-    app1.render()
+    acc1 = account.Account(network1.s)
+    acc1.render()
+    print("passed acc1 render")
+    user1.setnickname(acc1.nickname)
+    if acc1.entered:
+        contacts = Contacts.Contacts()
+        send_thread = threading.Thread(target=thread2)
+        send_thread.daemon = True
+        send_thread.start()
+        receive_thread = threading.Thread(target=thread3)
+        receive_thread.daemon = True
+        receive_thread.start()
+        app1 = App.App(network1.s, user1.nickname)
+        app1.render()
 network1.close_connection()
-
-#
-# def handler(s):
-#     global connection
-#     time.sleep(3)
-#     try:
-#         s.connect((host, port))
-#     except:
-#         netcheck1.label1.config(text="No connection :(")
-#         print("No connection")
-#         connection = False
-#     else:
-#         netcheck1.label1.config(text="Connected!")
-#         print("Network established")
-#         time.sleep(2)
-#         connection = True
-#
-#
-
-# netcheck1.render()
-# if connection:
-#     app1 = App.App()
-#     app1.render()
-#
